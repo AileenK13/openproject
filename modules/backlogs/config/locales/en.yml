@@ -283,8 +283,8 @@ en:
     story_points_ideal: "Story points (ideal)"
 
   created_resolved:
-    created: "Created"
-    resolved: "Resolved"
+    wp_created: "Created"
+    wp_resolved: "Resolved"
 
   ee:
     features:

@@ -35,7 +35,7 @@ import PrimerColorsPlugin from 'core-app/shared/components/work-package-graphs/p
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { environment } from '../../../environments/environment';
 
-const BURNDOWN_Y_SCALE_MIN = 25;
+const BURNDOWN_Y_SCALE_MIN = 10;
 
 @Component({
   selector: 'op-created-resolved-chart',

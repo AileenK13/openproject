@@ -40,6 +40,7 @@ class Burndown
 
     series_data.collect_data
 
+    #series_data = {"story_points" => {Fri, 31 Jul 2026 => 5.0}}
     calculate_series series_data
 
     determine_max
@@ -61,6 +62,7 @@ class Burndown
             end
   end
 
+  #erstellt die Daten für die beiden Charts (Story Points & Story Points (ideal))
   def calculate_series(series_data)
     series_data.collect_names.each do |c|
       # need to differentiate between hours and sp
@@ -72,6 +74,7 @@ class Burndown
 
   def calculate_ideals(data)
     (["story_points"] & data.collect_names).each do |ideal|
+      Rails.logger.info ">>> DEBUG ideal -> #{ideal.inspect}"
       calculate_ideal(ideal, data.unit_for(ideal))
     end
   end

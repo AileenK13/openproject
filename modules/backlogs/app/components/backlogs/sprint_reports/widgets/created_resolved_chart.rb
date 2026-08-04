@@ -76,10 +76,15 @@ module Backlogs
           end
         end
 
+        #hier wird das dataset für das Chart erstellt
+        #in createdResolved muss später :created und :resolved drinnen stehen
         def dataseries(createdResolved)
+          #createdResolved =
+          ##<CreatedResolved:0x0000761511df5150 @sprint_id=3, @days=[Fri, 31 Jul 2026, Mon, 03 Aug 2026, Tue, 04 Aug 2026, Wed, 05 Aug 2026, Thu, 06 Aug 2026, Fri, 07 Aug 2026], @available_series={created: [0.0, 0.0, 0.0], resolved: [0.0, 0.0, 0.0]}, @created=[0.0, 0.0, 0.0], @resolved=[0.0, 0.0, 0.0], @max={workpackages: 0.0, hours: 0.0}>
           createdResolved.series.map do |s|
+            Rails.logger.info ">>> DEBUG series: #{s.inspect}"
             {
-              label: I18n.t("createdResolved.#{s.first}"),
+              label: I18n.t("created_resolved.#{s.first}"),
               data: s.last.enum_for(:each)
             }
           end
