@@ -110,7 +110,10 @@ module OpenProject::Backlogs::CreatedResolved
           /*COUNT() as work_packages*/
           /*COALESCE(SUM(work_package_journals.story_points), 0.0) AS wp_created,*/
           COUNT(*) FILTER (WHERE date_trunc('day', work_packages.created_at) = days.date) AS wp_created,
-          COUNT(*) FILTER (WHERE work_package_journals.status_id IN (12,14)) AS wp_resolved
+          COUNT(*) FILTER (
+              WHERE work_package_journals.status_id IN (12,14) AND 
+              (days.DATE::TIMESTAMP + interval '23:59:59') AT TIME ZONE 'Etc/UTC' = (date_trunc('day', journals.created_at::TIMESTAMP)+ interval '23:59:59') AT TIME ZONE 'Etc/UTC'
+            ) AS wp_resolved
         FROM
           work_package_journals
         LEFT JOIN
