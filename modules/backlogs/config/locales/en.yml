@@ -195,7 +195,7 @@ en:
     remaining_hours: "Remaining work"
     sharing: "Sprint sharing"
     show_burndown_chart: "Burndown chart"
-    show_created_resolved_chart: "Created / Resolved chart"
+    show_created_resolved_chart: "Created vs resolved work packages"
 
     sprint_component:
       action_menu:

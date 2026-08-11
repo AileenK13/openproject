@@ -67,6 +67,9 @@ export class CreatedResolvedComponent {
   });
 
   readonly lineChartOptions:Signal<ChartOptions<'line'>> = computed<ChartOptions<'line'>>(() => ({
+    fill: true,
+    tension: 0,
+    pointRadius: 0,
     scales: {
       x: {
         title: {
@@ -85,7 +88,7 @@ export class CreatedResolvedComponent {
     },
     plugins: {
       legend: {
-        position: 'top'
+        position: 'bottom'
       }
     }
   }));

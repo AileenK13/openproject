@@ -71,7 +71,8 @@ module Backlogs
           entries_displayed = (createdResolved.days.length / 14.0).ceil
           createdResolved.days.enum_for(:each_with_index).map do |d, i|
             if (i % entries_displayed) == 0
-              ["#{::I18n.t('date.abbr_day_names')[d.wday % 7]} #{d.strftime('%d/%m')}"]
+              #["#{::I18n.t('date.abbr_day_names')[d.wday % 7]} #{d.strftime('%d/%m')}"]
+              ["#{d.strftime('%d.%m')}"]
             end
           end
         end
