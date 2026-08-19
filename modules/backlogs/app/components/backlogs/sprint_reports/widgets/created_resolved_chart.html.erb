@@ -37,8 +37,8 @@ See COPYRIGHT and LICENSE files for more details.
       container.with_body do
         render(Primer::Beta::Blankslate.new(spacious: true)) do |blankslate|
           blankslate.with_visual_icon(icon: :graph)
-          blankslate.with_heading(tag: :h3).with_content(t("backlogs.burndown_chart.show.blankslate_title"))
-          blankslate.with_description_content(t("backlogs.burndown_chart.show.blankslate_description"))
+          blankslate.with_heading(tag: :h3).with_content(t("backlogs.created_resolved_chart.show.blankslate_title"))
+          blankslate.with_description_content(t("backlogs.created_resolved_chart.show.blankslate_description"))
         end
       end
     end

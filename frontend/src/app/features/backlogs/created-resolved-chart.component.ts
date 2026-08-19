@@ -50,7 +50,6 @@ export class CreatedResolvedComponent {
   readonly chartData = input.required<string>();
 
   readonly lineChartData = computed<ChartData<'line'>>(() => {
-    //hier passiert die Magic für die Farben
     const data = JSON.parse(this.chartData()) as ChartData<'line'>;
     return data;
   });

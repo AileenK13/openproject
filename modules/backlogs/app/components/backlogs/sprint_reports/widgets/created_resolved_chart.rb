@@ -37,20 +37,14 @@ module Backlogs
         param :sprint
         param :project
 
-        #Ist der Titel des Widgets
-        # t() = translate () -> zieht sich Text aus /home/coche/dev/openproject/modules/backlogs/config/locales/en.yml
-        # wird in ??? benutzt
         def title
           t("backlogs.show_created_resolved_chart")
         end
 
-        #
-        #
-        #
         def chart_data
           {
-            labels: xaxis_labels(createdResolved),
-            datasets: dataseries(createdResolved)
+            labels: xaxis_labels(created_resolved),
+            datasets: dataseries(created_resolved)
           }.to_json
         end
 
@@ -60,32 +54,25 @@ module Backlogs
 
         private
 
-        def createdResolved
+        def created_resolved
           return nil unless sprint.date_range_set?
 
-          #@burndown ||= Burndown.new(sprint, project)
-          @createdResolved ||= CreatedResolved.new(sprint, project)
+          @created_resolved ||= CreatedResolved.new(sprint, project)
         end
 
-        def xaxis_labels(createdResolved)
+        def xaxis_labels(created_resolved)
           # 14 entries (plus the axis label) have come along as the best value for a good optical result.
           # Thus it is enough space between the entries.
-          entries_displayed = (createdResolved.days.length / 14.0).ceil
-          createdResolved.days.enum_for(:each_with_index).map do |d, i|
+          entries_displayed = (created_resolved.days.length / 14.0).ceil
+          created_resolved.days.enum_for(:each_with_index).map do |d, i|
             if (i % entries_displayed) == 0
-              #["#{::I18n.t('date.abbr_day_names')[d.wday % 7]} #{d.strftime('%d/%m')}"]
-              #["#{d.strftime('%d.%m')}"]
               ["#{format_date(d, format: I18n.t("date.formats.short"))}"]
             end
           end
         end
 
-        #hier wird das dataset für das Chart erstellt
-        #in createdResolved muss später :created und :resolved drinnen stehen
-        def dataseries(createdResolved)
-          #createdResolved =
-          ##<CreatedResolved:0x0000761511df5150 @sprint_id=3, @days=[Fri, 31 Jul 2026, Mon, 03 Aug 2026, Tue, 04 Aug 2026, Wed, 05 Aug 2026, Thu, 06 Aug 2026, Fri, 07 Aug 2026], @available_series={created: [0.0, 0.0, 0.0], resolved: [0.0, 0.0, 0.0]}, @created=[0.0, 0.0, 0.0], @resolved=[0.0, 0.0, 0.0], @max={workpackages: 0.0, hours: 0.0}>
-          createdResolved.series.map do |s|
+        def dataseries(created_resolved)
+          created_resolved.series.map do |s|
             Rails.logger.info ">>> DEBUG series: #{s.inspect}"
             {
               label: I18n.t("created_resolved.#{s.first}"),

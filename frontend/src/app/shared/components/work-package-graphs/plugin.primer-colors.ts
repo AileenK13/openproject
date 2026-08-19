@@ -68,26 +68,6 @@ const PRIMER_COLORS = [
   'lime',   // (subdued green, good closing color)
 ];
 
-
-/*const PRIMER_COLORS = [
-  'teal',   // (fresh contrast)
-  'orange', // (bold, warm → most eye-catching → first)
-  'green',  // (contrasts strongly with orange)
-  'purple', // (cool, distinct)
-  'red',    // (strong, but not first to avoid clash with orange)
-  'yellow', // (bright highlight, works better later)
-  'blue',   // (strong primary)
-  'pink',   // (vivid, contrasts with blue)
-  'pine',   // (deep green, darker balance)
-  'auburn', // (earthy tone)
-  'brown',  // (neutral balance)
-  'cyan',   // (slight highlight between neutral colours)
-  'gray',   // (neutral, mid-series filler)
-  'lemon',  // (darker yellow, less eye-catching)
-  'olive',  // (subdued green, background tone)
-  'lime',   // (subdued green, good closing color)
-];*/
-
 function getCSSVariable(variable:string) {
   return getComputedStyle(document.body).getPropertyValue(variable).trim();
 }
@@ -144,7 +124,6 @@ function colorizeMultiDataset(dataset:ChartDataset, i:number) {
   dataset.backgroundColor = backgroundColors;
   dataset.borderColor = borderColors;
   dataset.borderWidth = 1;
-  //dataset.fill = true;
 
   return i+1;
 }
@@ -213,7 +192,6 @@ const plugin:Plugin<ChartType, PrimerColorsPluginOptions> = {
     }
 
     const { data: { datasets } } = chart.config;
-    console.log(chart.config)
     if (options.datasetLabelBased || (options.labelBased && datasets.length !== 1)) {
       const labels = datasets.map((d) => d.label ?? '');
       const colorMap = buildLabelColorMap(labels);

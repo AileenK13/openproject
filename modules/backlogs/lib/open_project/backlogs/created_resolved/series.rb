@@ -35,7 +35,7 @@ module OpenProject::Backlogs::CreatedResolved
       @name = args.pop.to_sym
       @display = true
 
-      #raise "Unsupported unit '#{@unit}'" unless %i[points hours].include? @unit
+      raise "Unsupported unit '#{@unit}'" unless %i[workpackages hours].include? @unit
 
       super
     end

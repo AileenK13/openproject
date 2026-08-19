@@ -56,15 +56,8 @@ module OpenProject::Backlogs::Burndown
 
         day_data.each do |key, value|
           next if key == "date"
-
-          #Rails.logger.info ">>> DEBUG dd bd key: #{key.inspect}"
-          #Rails.logger.info ">>> DEBUG dd bd value: #{value.inspect}"
-          #key & value -> story_points - 5.0
-          Rails.logger.info ">>> DEBUG self bd: #{self.inspect}"
-          #Rails.logger.info ">>> DEBUG selfkey bd: #{self[key].inspect}"
           
           self[key][date] = value.to_f
-          #self = {"story_points" => {Fri, 31 Jul 2026 => 5.0}}
         end
       end
     end
