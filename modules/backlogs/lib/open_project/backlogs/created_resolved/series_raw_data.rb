@@ -28,7 +28,7 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-module OpenProject::Backlogs::Burndown
+module OpenProject::Backlogs::CreatedResolved
   class SeriesRawData < Hash
     def initialize(*args)
       @collect = args.pop
@@ -40,31 +40,44 @@ module OpenProject::Backlogs::Burndown
     attr_reader :collect, :sprint, :project
 
     def collect_names
+      #@collect_names = ["created", "resolved"]
       @collect_names ||= @collect.to_a.map(&:last).flatten
+      #Rails.logger.info ">>> DEBUG collect_names -> #{@collect_names}"
     end
 
     def unit_for(name)
-      :points if @collect[:points].include? name
+      # :points if @collect[:points].include? name
+      :workpackages if @collect[:workpackages].include? name
+      #Rails.logger.info ">>> DEBUG :points -> #{:workpackages}"
     end
 
     def collect_data
       initialize_self_for_collection
-
-      data_for_dates.each do |day_data|
+      #Rails.logger.info ">>> DEBUG data_for_dates -> #{data_for_dates.inspect}"
+      data_for_dates.each do |day_data| 
+        #day_data burndown = {"date" => Fri, 31 Jul 2026, "story_points" => 0.5e1}
         date = day_data["date"]
         date = Date.parse(date) unless date.is_a?(Date)
-
+        #date = 2026-07-31
+       
+        Rails.logger.info ">>> DEBUG day_data2 -> #{day_data.inspect}"
+        #day_data = {"date" => Fri, 31 Jul 2026, "story_points" => 0.5e1}
         day_data.each do |key, value|
           next if key == "date"
 
-          #Rails.logger.info ">>> DEBUG dd bd key: #{key.inspect}"
-          #Rails.logger.info ">>> DEBUG dd bd value: #{value.inspect}"
-          #key & value -> story_points - 5.0
-          Rails.logger.info ">>> DEBUG self bd: #{self.inspect}"
-          #Rails.logger.info ">>> DEBUG selfkey bd: #{self[key].inspect}"
-          
-          self[key][date] = value.to_f
-          #self = {"story_points" => {Fri, 31 Jul 2026 => 5.0}}
+          #Rails.logger.info ">>> DEBUG dd key: #{key.inspect}"
+          #Rails.logger.info ">>> DEBUG dd value: #{value.inspect}"
+          Rails.logger.info ">>> DEBUG self: #{self.inspect}"
+          #self[story_points][2026-07-31] = 5.0
+          #self = {"created" => {Fri, 31 Jul 2026 => 0.0}, "resolved" => {Fri, 31 Jul 2026 => 0.0}}
+          #self.each do |entry|
+            #Rails.logger.info ">>> DEBUG value: #{value}"
+            #self[key][date] = value.to_f
+          #end
+          self.transform_values do |entry|
+            self[key][date] = value.to_f
+          end
+          #self[key][date] = value.to_f
         end
       end
     end
@@ -78,9 +91,11 @@ module OpenProject::Backlogs::Burndown
         date_hash[date] = 0.0
       end
 
+      #collect_names = ["created", "resolved"]
       collect_names.each do |c|
         self[c] = date_hash.dup
       end
+      #self = {"created" => {Fri, 31 Jul 2026 => 0.0}, "resolved" => {Fri, 31 Jul 2026 => 0.0}}
     end
 
     def collected_days
@@ -88,10 +103,15 @@ module OpenProject::Backlogs::Burndown
     end
 
     def data_for_dates
+
       query_string = <<~SQL.squish
         SELECT
           days.date,
-          COALESCE(SUM(work_package_journals.story_points), 0.0) as story_points
+          COUNT(*) FILTER (WHERE date_trunc('day', work_packages.created_at) = days.date) AS wp_created,
+          COUNT(*) FILTER (
+              WHERE work_package_journals.status_id IN (#{project.done_statuses.pluck(:id).join(', ')}) AND
+              (days.DATE::TIMESTAMP + interval '23:59:59') AT TIME ZONE 'Etc/UTC' = (date_trunc('day', journals.created_at::TIMESTAMP)+ interval '23:59:59') AT TIME ZONE 'Etc/UTC'
+            ) AS wp_resolved
         FROM
           work_package_journals
         LEFT JOIN
@@ -100,7 +120,9 @@ module OpenProject::Backlogs::Burndown
           AND journals.data_type = '#{Journal::WorkPackageJournal.name}'
           AND #{container_query}
           AND #{project_id_query}
-          #{and_status_query}
+        LEFT JOIN 
+          work_packages 
+        ON journals.journable_id = work_packages.id
         JOIN
           (#{day_query.to_sql}) days
         ON (days.date::timestamp + interval '23:59:59') AT TIME ZONE '#{User.current.time_zone.tzinfo.name}' <@ journals.validity_period
@@ -108,6 +130,7 @@ module OpenProject::Backlogs::Burndown
         ORDER BY days.date
       SQL
 
+      Rails.logger.info ">>> DEBUG query_string: #{query_string}"
       Journal::WorkPackageJournal.connection.select_all query_string
     end
 
@@ -116,7 +139,7 @@ module OpenProject::Backlogs::Burndown
 
       done_statuses_for_project = project.done_statuses.pluck(:id)
 
-      open_status_ids = non_closed_statuses - done_statuses_for_project
+      open_status_ids = non_closed_statuses + done_statuses_for_project
 
       if open_status_ids.empty?
         # No work packages count as remaining, so force the LEFT JOIN to
@@ -126,6 +149,7 @@ module OpenProject::Backlogs::Burndown
         "AND (#{Journal::WorkPackageJournal.table_name}.status_id IN (#{open_status_ids.join(',')}))"
       end
     end
+
 
     def container_query
       "(#{Journal::WorkPackageJournal.table_name}.sprint_id = #{sprint.id})"
