@@ -30,26 +30,22 @@
 
 module WorkPackageTypes
   module Wizard
-    # The project attributes wizard step: the reuse-mode banner over the project
-    # attribute toggles, shown read-only while the aspect is Linked. Mirrors the
-    # project attributes tab and PdfStepComponent.
     class ProjectAttributesStepComponent < ApplicationComponent
       include OpPrimer::ComponentHelpers
 
-      def initialize(type:)
-        super(type)
+      def initialize(variant:)
+        super(variant)
       end
 
       def call
         render(WorkPackageTypes::ReloadableConfigurationFrameComponent.new(reload_url:)) do
           render(WorkPackageTypes::ReuseModeBannerComponent.new(
-                   type: model,
-                   aspect: Type::ConfigurationLink::PROJECT_ATTRIBUTES
+                   variant: model,
+                   aspect: TypeVariant::PROJECT_ATTRIBUTES
                  )) +
             render(WorkPackageTypes::ProjectAttributes::IndexComponent.new(
-                     type: model,
-                     project_custom_field_sections:,
-                     readonly: model.linked?(Type::ConfigurationLink::PROJECT_ATTRIBUTES)
+                     variant: model,
+                     project_custom_field_sections:
                    ))
         end
       end

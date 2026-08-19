@@ -32,8 +32,6 @@ module Projects
   module Settings
     module WorkPackages
       module Types
-        # Lists the type families active in a project: one row per family,
-        # naming the active variant behind the parent type it presents as.
         class ListComponent < ApplicationComponent
           include OpPrimer::ComponentHelpers
           include OpTurbo::Streamable
@@ -48,13 +46,29 @@ module Projects
 
           attr_reader :project
 
-          # A variant's acts_as_list position is scoped to its parent, so only
-          # the family's own position is comparable across rows.
-          def active_types
-            @active_types ||= project
-                                .types
-                                .includes(:parent, :color)
-                                .sort_by { |type| type.root.position }
+          def active_project_types
+            @active_project_types ||= project
+                                        .project_types
+                                        .includes(:variant, type: :color)
+                                        .sort_by { |project_type| project_type.type.position }
+          end
+
+          def switchable?(project_type)
+            project_type.type.variants.non_default_variants.exists?
+          end
+
+          def switch_path(type)
+            new_project_settings_work_packages_type_switch_path(project, type)
+          end
+
+          def switch_action(menu, type)
+            menu.with_item(
+              label: t("projects.settings.types.switch_type"),
+              href: switch_path(type),
+              content_arguments: { data: { controller: "async-dialog" } }
+            ) do |item|
+              item.with_leading_visual_icon(icon: "list-ordered")
+            end
           end
 
           def remove_path(type)

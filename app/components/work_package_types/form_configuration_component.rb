@@ -33,44 +33,28 @@ module WorkPackageTypes
     include OpTurbo::Streamable
     include OpPrimer::ComponentHelpers
 
-    ASPECT = Type::ConfigurationLink::FORM_CONFIGURATION
+    ASPECT = TypeVariant::FORM_CONFIGURATION
 
-    # The elements this type does not show.
-    #  - own: this type's own link
-    #  - effective: the union over the whole link chain
-    #
-    # An element in effective but not in own was excluded by a link above this type, which is
-    # what #excluded_by_source? answers: this type cannot reach that link to undo it.
-    ExclusionState = Data.define(:type, :own, :effective) do
-      def excluded?(key)
-        effective.include?(key.to_s)
-      end
-
-      def excluded_by_source?(key)
-        excluded?(key) && own.exclude?(key.to_s)
-      end
-    end
-
-    def initialize(type:, form_attributes:, no_filter_query:)
-      super(type)
-      @type = type
+    def initialize(variant:, form_attributes:, no_filter_query:)
+      super(variant)
+      @variant = variant
       @form_attributes = form_attributes
       @no_filter_query = no_filter_query
     end
 
     def readonly?
-      OpenProject::FeatureDecisions.type_variants_active? && @type.linked?(ASPECT)
+      OpenProject::FeatureDecisions.type_variants_active? && @variant.linked?(ASPECT)
     end
 
     def source
-      @type.effective_source_for(ASPECT)
+      @variant.effective_source_for(ASPECT)
     end
 
     # We memoize the exclusion state here to avoid an n+1 query
     def exclusion_state
       return @exclusion_state if defined?(@exclusion_state)
 
-      @exclusion_state = readonly? ? build_exclusion_state : nil
+      @exclusion_state = readonly? ? WorkPackageTypes::ExclusionState.for(@variant, ASPECT) : nil
     end
 
     def ee_available?
@@ -95,8 +79,10 @@ module WorkPackageTypes
       {
         controller: "admin--type-form-configuration--main admin--type-form-configuration--rows-drag-and-drop",
         "admin--type-form-configuration--main-no-filter-query-value": @no_filter_query,
-        "admin--type-form-configuration--main-add-group-url-value": add_group_type_form_configuration_groups_path(@type),
-        "admin--type-form-configuration--main-groups-url-value": type_form_configuration_groups_path(@type),
+        "admin--type-form-configuration--main-add-group-url-value": add_group_type_form_configuration_groups_path(
+          **@variant.path_args
+        ),
+        "admin--type-form-configuration--main-groups-url-value": type_form_configuration_groups_path(**@variant.path_args),
         "admin--type-form-configuration--rows-drag-and-drop-handle-selector-value": ".attribute-handle"
       }
     end
@@ -113,12 +99,12 @@ module WorkPackageTypes
     end
 
     def main_content_component
-      groups_type = readonly? ? source : @type
+      groups_type = readonly? ? source : @variant
       groups = active_groups
       group_components = groups.map.with_index do |group, i|
         WorkPackageTypes::FormConfiguration::GroupComponent.new(
           group:,
-          type: groups_type,
+          variant: groups_type,
           ee_available: ee_available?,
           first: i == 0,
           last: i == groups.length - 1,
@@ -128,7 +114,7 @@ module WorkPackageTypes
       end
 
       WorkPackageTypes::FormConfiguration::MainContentComponent.new(
-        type: @type,
+        variant: @variant,
         group_components:,
         ee_available: ee_available?,
         readonly: readonly?
@@ -137,9 +123,6 @@ module WorkPackageTypes
 
     private
 
-    # This drops groups that some source link excludes.
-    # This type can only reduce attributes that it still sees.
-    # If the group was toggled off somewhere in the link, we hide it here completely.
     def without_source_exclusions(groups)
       return groups if exclusion_state.nil?
 
@@ -163,17 +146,6 @@ module WorkPackageTypes
     # A query group is a single entry in the section, so a source exclusion drops the whole section.
     def retained_query_group(group)
       group unless group[:element_key].present? && exclusion_state.excluded_by_source?(group[:element_key])
-    end
-
-    def build_exclusion_state
-      link = @type.configuration_links.find_by(aspect: ASPECT)
-      return nil unless link
-
-      ExclusionState.new(
-        type: @type,
-        own: link.excluded_elements.map(&:to_s),
-        effective: @type.effective_excluded_elements(ASPECT).map(&:to_s)
-      )
     end
   end
 end

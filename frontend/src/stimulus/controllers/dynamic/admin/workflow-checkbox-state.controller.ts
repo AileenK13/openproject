@@ -1,32 +1,30 @@
-/*
- * -- copyright
- * OpenProject is an open source project management software.
- * Copyright (C) the OpenProject GmbH
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License version 3.
- *
- * OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
- * Copyright (C) 2006-2013 Jean-Philippe Lang
- * Copyright (C) 2010-2013 the ChiliProject Team
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- *
- * See COPYRIGHT and LICENSE files for more details.
- * ++
- */
+//-- copyright
+// OpenProject is an open source project management software.
+// Copyright (C) the OpenProject GmbH
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License version 3.
+//
+// OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+// Copyright (C) 2006-2013 Jean-Philippe Lang
+// Copyright (C) 2010-2013 the ChiliProject Team
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+//
+// See COPYRIGHT and LICENSE files for more details.
+//++
 
 import { Controller } from '@hotwired/stimulus';
 import { renderStreamMessage } from '@hotwired/turbo';
@@ -65,13 +63,15 @@ export default class WorkflowCheckboxStateController extends Controller<HTMLElem
     hasStatusChanges: Boolean,
     hasCheckboxChanges: Boolean,
     isDirty: Boolean,
-    saveUrl: String
+    saveUrl: String,
+    variantId: String
   };
 
   declare hasStatusChangesValue:boolean;
   declare hasCheckboxChangesValue:boolean;
   declare isDirtyValue:boolean;
   declare saveUrlValue:string;
+  declare variantIdValue:string;
 
   static metaNames = ['csrf-token'];
   declare readonly csrfToken:string;
@@ -181,13 +181,8 @@ export default class WorkflowCheckboxStateController extends Controller<HTMLElem
   }
 
   private get formKey():string {
-    const typeId = this.formValue('type_id');
     const roleIds = this.formValues('role_ids[]').sort().join(',');
-    return `${typeId}-${roleIds}`;
-  }
-
-  private formValue(name:string):string {
-    return this.element.querySelector<HTMLInputElement>(`input[name="${name}"]`)!.value;
+    return `${this.variantIdValue}-${roleIds}`;
   }
 
   private formValues(name:string):string[] {

@@ -57,6 +57,8 @@ cs:
         position: Position
         presenter: Přednášející
         title: Název
+      meeting_outcome:
+        kind: Kind
       meeting_participant:
         attended: Zúčastnil se
         invited: Pozvané
@@ -491,7 +493,7 @@ cs:
       structured_text_copy: Kopírování schůzky v současné době nezkopíruje související body pořadu jednání, jen podrobnosti
     widgets:
       blankslate:
-        description: Upcoming meetings you are participating in will appear here.
+        description: Zde se zobrazí nadcházející schůzky, kterých se účastníte.
         heading: Žádné nadcházející schůzky
       view_details: Zobrazit všechny schůzky
   meeting_participant:

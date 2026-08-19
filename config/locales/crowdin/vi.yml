@@ -67,7 +67,8 @@ vi:
       '
     login_with_auth_provider: hoặc đăng nhập bằng tài khoản hiện tại
     omniauth_login: Vui lòng đăng nhập để kích hoạt tài khoản của bạn.
-    signup_with_auth_provider: hoặc sử dụng đăng ký
+    signup_title: Create an account in %{app_title}
+    signup_with_external_account: Sign up with an external account
   actionview_instancetag_blank_option: Vui lòng chọn
   activemodel:
     attributes:
@@ -235,6 +236,7 @@ vi:
         project_creation_wizard_status_when_submitted: Trạng thái khi gửi
         project_creation_wizard_work_package_comment: Nhận xét gói công việc
         project_creation_wizard_work_package_type: Loại gói công việc
+        project_types: Types
         public_value:
           false: riêng tư
           title: Khả năng hiển thị
@@ -274,6 +276,8 @@ vi:
         start_gate_name: Tên cổng giai đoạn bắt đầu
       project_custom_field:
         custom_field_section: phần
+      project_type:
+        variant: Variant
       query:
         child_work_packages: Gói công việc trẻ em
         column_names: Cột
@@ -341,18 +345,26 @@ vi:
       token/named:
         token_name: Tên mã thông báo
       type:
-        attribute_groups: Cấu hình biểu mẫu
-        children: Variants
         color: Màu sắc
-        dependent_configuration_links: Linked types
-        description: Văn bản mặc định cho mô tả
-        is_default: Kích hoạt cho các dự án mới theo mặc định
         is_in_roadmap: Hiển thị trong lộ trình mặc định
         is_milestone: Là cột mốc quan trọng
-        parent: Parent type
-        patterns: mẫu
+        project_types: Projects
+        variants: Variants
       type/configuration_link:
         source: Source type
+      type_variant:
+        attribute_groups: Form configuration
+        default_work_package_description: Default text for description
+        defaults_source: Defaults source
+        enabled_in_new_projects: Active in new projects
+        form_configuration_source: Form configuration source
+        patterns: Patterns
+        pdf_export_source: PDF export source
+        project_attributes_source: Project attributes source
+        project_types: Projects using this variant
+        variant: Variant
+        variant_name: Name
+        workflows_source: Workflows source
       user:
         admin: Người Quản lý
         auth_source: Nguồn xác thực
@@ -487,6 +499,7 @@ vi:
         before_or_equal_to: phải có trước hay tương đương với %{date}
         blank: không được để trống
         blank_nested: cần phải đặt thuộc tính '%{property}'.
+        blocked_domain: is not allowed. Please use an email address from a different domain.
         cannot_delete_mapping: được yêu cầu. Không thể xóa được.
         cant_link_a_work_package_with_a_descendant: Một gói công việc không thể được liên kết với một trong các nhiệm vụ con của nó.
         circular_dependency: Mối quan hệ này sẽ tạo ra sự phụ thuộc vòng tròn.
@@ -547,6 +560,7 @@ vi:
         regex_match_failed: không khớp với biểu thức chính quy %{expression}.
         smaller_than_or_equal_to_max_length: phải nhỏ hơn hoặc bằng với chiều dài tối đa
         ssrf_filtered: violates the SSRF policy of this OpenProject instance.
+        status_transition_invalid: is invalid because no valid transition exists from old to new status for the current user's roles.
         system_wide_non_working_day_exists: conflicts with an existing system-wide non-working day for this date.
         taken: đã bị dùng rồi.
         too_long: quá dài (tối đa %{count} ký tự).
@@ -697,9 +711,9 @@ vi:
               cannot_assign_variant_and_parent: 'Cannot assign a variant and its parent '
               cannot_assign_variants_yet: Variants cannot be enabled on a project yet. Enable the feature flag to try out variants
               in_use_by_work_packages: 'gói công việc vẫn được sử dụng: %{types}'
-              switch_source_not_a_variant: Can only switch away from a variant
-              switch_target_identical: The target Type must be different from the current variant
-              switch_target_not_in_family: Can only switch to another variant of the same Type or to its parent Type
+              switch_target_blank: Select the variant to switch to
+              switch_target_identical: The target type must be different from the type the project uses now
+              switch_target_not_in_family: Can only switch to another type of the same family
           cannot_be_assigned_to_artifact_work_package: Người dùng đã chọn không được phép gán cho các gói công việc.
           foreign_wps_reference_version: Các gói công việc trong các phiên bản tham chiếu không kế thừa của dự án hoặc kế thừa nó.
         project/phase:
@@ -714,6 +728,10 @@ vi:
           attributes:
             project_ids:
               blank: Vui lòng chọn một dự án.
+        project_type:
+          attributes:
+            variant:
+              must_belong_to_the_type: must be a variant of the type the project uses.
         queries/filters/base:
           attributes:
             values:
@@ -802,25 +820,34 @@ vi:
               blank: Vui lòng cung cấp tên mã thông báo
               format: "%{message}"
               in_use: Tên mã thông báo này đã được sử dụng, vui lòng chọn tên khác
-        type:
+        type_variant:
           attributes:
             attribute_groups:
-              attribute_unknown: Thuộc tính gói công việc không hợp lệ được sử dụng.
-              attribute_unknown_name: 'Thuộc tính gói công việc được sử dụng không hợp lệ: %{attribute}'
-              duplicate_group: Nhóm tên '%{group}' được sử dụng nhiều hơn một lần. Tên nhóm phải là duy nhất.
+              attribute_unknown: Invalid work package attribute used.
+              attribute_unknown_name: 'Invalid work package attribute used: %{attribute}'
+              duplicate_group: The group name '%{group}' is used more than once. Group names must be unique.
               group_without_name: Group name can't be blank.
-              query_invalid: 'Truy vấn nhúng ''%{group}'' là không hợp lệ: %{details}'
-            parent:
-              cannot_be_self: can't be the type itself.
-              cannot_change_with_work_packages: can't be changed because work packages of this type already exist.
-              cannot_have_children: can't be set because this type already has variants.
-              must_be_a_root: must itself be a top-level type. Types can only be nested one level deep.
-              standard_type_must_be_root: can't be set for the standard type.
+              query_invalid: 'The embedded query ''%{group}'' is invalid: %{details}'
+            base:
+              borrowed_by_variants: Cannot be deleted while its configuration is reused by %{names}.
+              is_default_variant: The default configuration of a type cannot be deleted.
+              restrict_dependent_destroy:
+                has_many: Cannot be deleted while projects are still using it.
+            defaults_source_id:
+              would_create_cycle: would link these configurations in a loop.
+            enabled_in_new_projects:
+              taken: is already set for another configuration of this type.
+            form_configuration_source_id:
+              would_create_cycle: would link these configurations in a loop.
             patterns:
-              invalid_tokens: Một hoặc nhiều thuộc tính bên trong trường này không hợp lệ. Vui lòng sửa các thuộc tính trước khi lưu.
-        type/configuration_link:
-          attributes:
-            source_id:
+              invalid_tokens: One or more attributes inside the field are not valid. Please, fix the attributes before saving.
+            pdf_export_source_id:
+              would_create_cycle: would link these configurations in a loop.
+            project_attributes_source_id:
+              would_create_cycle: would link these configurations in a loop.
+            variant:
+              must_belong_to_the_type: must be a variant of this type.
+            workflows_source_id:
               would_create_cycle: would link these configurations in a loop.
         user:
           attributes:
@@ -925,6 +952,9 @@ vi:
             start_date:
               cannot_be_null: không thể được đặt thành null vì ngày kết thúc và thời lượng đã biết.
               violates_relationships: chỉ có thể được thiếp lập sang %{soonest_start} hoặc mới hơn để không làm vi phạm các mối quan hệ của work package.
+            status:
+              status_invalid_in_type: is invalid because the current status does not exist in this type.
+              status_transition_invalid: is invalid because no valid transition exists from old to new status for the current user's roles.
             status_id:
               status_invalid_in_type: không hợp lệ vì tình trạng hiện tại không tồn tại loại này.
               status_transition_invalid: không hợp lệ vì không tồn tại chuyển đổi hợp lệ từ trạng thái cũ sang trạng thái mới cho vai trò của người dùng hiện tại.
@@ -933,7 +963,6 @@ vi:
           is_not_a_valid_target_for_time_entries: 'Work package #%{id} không phải là một mục tiêu hợp lệ để gán lại các mục thời gian.'
           readonly_status: Gói công việc ở trạng thái chỉ đọc nên các thuộc tính của nó không thể thay đổi.
           target_versions_only_allow_single_value: Target Versions can only hold a single value.
-          version_and_target_versions_mutually_exclusive: Version and target versions cannot both be changed at the same time.
       template:
         body: 'Vui lòng kiểm tra các mục sau đây:'
         header:
@@ -984,6 +1013,8 @@ vi:
         other: Mã thông báo RSS
       type:
         other: các loại
+      type_variant:
+        other: Variants
       user: Người dùng
       version: Phiên bản
       wiki: Wiki
@@ -1007,6 +1038,7 @@ vi:
           heading: Công khai nhận xét này?
           title: Công khai nhận xét này?
         internal_journal: Nhận xét nội bộ được hiển thị cho một nhóm thành viên hạn chế.
+        label_activity_hide_meetings: Hide meetings updates
         label_activity_show_all: Hiển thị mọi thứ
         label_activity_show_only_changes: Chỉ hiển thị các thay đổi
         label_activity_show_only_comments: Chỉ hiển thị nhận xét
@@ -1184,9 +1216,6 @@ vi:
           description: Create an import run to start importing information from this Jira instance
           title: No import runs set up yet
         history: History
-        side_panel:
-          run_status: Run status
-          open_history: Open the run history
         import_blocked_error: Another Jira import run is currently in progress or awaiting review. Please complete or revert it before starting a new import.
         index:
           button_edit_configuration: Edit cấu hình
@@ -1194,6 +1223,9 @@ vi:
           description: You can import different sets of data with each import run. It is possible to undo an import run immediately after in review mode but not after finalizing.
         project_identifier_taken: 'You are trying to import a project with an already used identifier: %{taken_identifier}. Please update the project identifier in Jira then click on Retry.'
         remove_error: A Jira import run cannot be removed while it is running
+        side_panel:
+          open_history: Open the run history
+          run_status: Run status
         status:
           configuring: Select scope
           finalizing: Finalizing
@@ -1482,6 +1514,42 @@ vi:
           error: The section could not be reordered.
         move:
           error: The section could not be reordered.
+      versions_and_categories:
+        banner:
+          button_more_information: More information
+          message: There are important upcoming changes to versions and categories. Please carefully review the following settings.
+        categories:
+          heading: Categories
+          planned_changes:
+            heading: Planned changes in a future release
+            renamed: The “Category” field will be renamed “Categories”.
+            single_value: This field is currently single-value. It will also be converted to allow multiple values.
+            upcoming_choice: You will be able to choose to enable multiple values before this automatic conversion happens.
+        dialog:
+          checkbox_label: I understand that this action is not reversible
+          confirm_button: Enable
+          description_html: This will convert the existing single-value Version field to accept multiple values. No data will be lost but this may affect custom integrations. Please refer to the <a href="%{link}" target="_blank" rel="noopener">documentation</a> before proceeding.
+          heading: Enable multiple target versions?
+          irreversible_notice: Once enabled, it will not be possible to go back to single values.
+          title: Enable multiple target versions
+        target_versions:
+          action_required:
+            button: Enable multiple values
+            heading: Action required
+            manual_conversion_hint: You can choose to manually run the conversion to enable multiple values before this automatic migration happens.
+            not_writable_hint: These settings are configured via environment variables. If you would like to manually run the conversion to enable multiple values before the automatic migration, update your configuration.yml file.
+          heading: Target versions
+          in_progress:
+            heading: Enabling multiple versions
+          planned_changes:
+            heading: Planned changes in a future release
+            renamed: The “Version” field will be renamed “Target versions”.
+            single_value: This field is currently single-value. It will be converted to allow multiple values.
+          recent_changes:
+            documentation_html: For more information on this change and how to update API clients, please refer to <a href="%{link}" target="_blank" rel="noopener">our documentation</a>.
+            heading: Recent changes
+            multiple_values: The “Target versions” field now allows multiple values.
+            renamed: The “Version” field has now been renamed “Target versions”.
       work_packages_identifier:
         autofix_preview:
           error_does_not_start_with_letter: Must start with an uppercase letter
@@ -1686,6 +1754,7 @@ vi:
     entity_type: thực thể
     estimated_hours: làm việc
     estimated_time: làm việc
+    exact_match: Exact match
     expires_at: Hết hạn vào
     filter: bộ lọc
     firstname: Tên
@@ -1728,6 +1797,7 @@ vi:
     start_date: Ngày bắt đầu
     state: tiểu bang
     status: Trạng thái
+    status_id: Status
     subject: Chủ đề
     summary: Tóm tắt
     template: mẫu
@@ -2464,7 +2534,6 @@ vi:
   error_can_not_delete_entry: Không thể xoá
   error_can_not_delete_in_use_archived_undisclosed: Ngoài ra còn có các gói công việc trong các dự án lưu trữ. Bạn cần yêu cầu quản trị viên thực hiện việc xóa để xem dự án nào bị ảnh hưởng.
   error_can_not_delete_in_use_archived_work_packages: 'Ngoài ra còn có các gói công việc trong các dự án lưu trữ. Trước tiên, bạn cần kích hoạt lại các dự án sau trước khi có thể thay đổi thuộc tính của các gói công việc tương ứng: %{archived_projects_urls}'
-  error_can_not_delete_standard_type: Kiểu chuẩn không thể bị xóa.
   error_can_not_delete_type:
     explanation: Loại này chứa các gói công việc và không thể bị xóa. Bạn có thể xem tất cả các gói công việc bị ảnh hưởng trong <a target="_blank" href="%{url}">cái nhìn này</a>.
   error_can_not_find_all_resources: Không thể tìm thấy tất cả các tài nguyên liên quan đến yêu cầu này.
@@ -2484,6 +2553,7 @@ vi:
   error_failed_to_delete_entry: Không xóa được mục này.
   error_in_dependent: 'Lỗi khi cố gắng thay đổi đối tượng phụ thuộc: %{dependent_class} #%{related_id} - %{related_subject}: %{error}'
   error_in_new_dependent: 'Lỗi khi tạo đối tượng phụ thuộc: %{dependent_class} - %{related_subject}: %{error}'
+  error_invalid_list_move_anchor: The item cannot be moved to the requested position. Please reload the page and try again.
   error_invalid_selected_value: Giá trị đã chọn không hợp lệ.
   error_journal_attribute_not_present: Tạp chí không chứa thuộc tính %{attribute}.
   error_menu_item_not_created: Không thể thêm mục trình đơn
@@ -2802,6 +2872,11 @@ vi:
         field_updated: "%{field} updated"
         header: changes by %{author}
         set_with_diff: "%{field} set (%{link})"
+      meeting_cancelled: "(cancelled)"
+      meeting_deleted: "(deleted)"
+      meeting_series_backlog_html: backlog for meeting series %{link}
+      meeting_series_template_html: template for meeting series %{link}
+      meeting_template_html: meeting template %{link}
       progress_mode_changed_to_status_based: Chế độ tính toán tiến độ được đặt thành dựa trên trạng thái
       status_excluded_from_totals_set_to_false_message: hiện được bao gồm trong tổng số thứ bậc
       status_excluded_from_totals_set_to_true_message: hiện đã bị loại khỏi tổng số thứ bậc
@@ -2814,6 +2889,7 @@ vi:
         progress_calculation_adjusted_from_disabled_mode: Tính toán tiến độ tự động <a href="%{href}" target="_blank">được đặt thành chế độ dựa trên công việc và điều chỉnh với cập nhật phiên bản</a>.
         scheduling_mode_adjusted: Chế độ lập lịch tự động điều chỉnh khi cập nhật phiên bản.
         sprint_migration: Version '%{version_name}' has been copied as a sprint.
+        target_versions_repaired: Target versions automatically synchronized with the Version field before enabling multiple target versions.
         totals_removed_from_childless_work_packages: Tổng số công việc và tiến độ tự động bị xóa cho các gói công việc không có cha với <a href="%{href}" target="_blank">cập nhật phiên bản</a>. Đây là một nhiệm vụ bảo trì và có thể được bỏ qua một cách an toàn.
       total_percent_complete_mode_changed_to_simple_average: Giá trị công việc của gói công việc con bị bỏ qua.
       total_percent_complete_mode_changed_to_work_weighted_average: Các gói công việc con không có Công việc sẽ bị bỏ qua.
@@ -2837,6 +2913,14 @@ vi:
       dates_changed: Ngày đã thay đổi
       default_attribute_written: Thuộc tính chỉ đọc được viết
       import: Imported
+      meeting_agenda_item_added_html: "<strong>Added to meeting</strong> %{meeting_title_information}"
+      meeting_agenda_item_added_template_html: "<strong>Added to</strong> %{meeting_title_information}"
+      meeting_agenda_item_discussed_html: "<strong>Discussed in meeting</strong> %{meeting_title_information}"
+      meeting_agenda_item_moved_html: "<strong>Moved to meeting</strong> %{meeting_title_information}"
+      meeting_agenda_item_moved_template_html: "<strong>Moved to</strong> %{meeting_title_information}"
+      meeting_agenda_item_removed_html: "<strong>Removed from meeting</strong> %{meeting_title_information}"
+      meeting_agenda_item_removed_template_html: "<strong>Removed from</strong> %{meeting_title_information}"
+      meeting_outcome_recorded_html: "<strong>Added as outcome in meeting</strong> %{meeting_title_information}"
       progress_mode_changed_to_status_based: Đã cập nhật tính toán tiến độ
       status_changed: Trạng thái '%{status_name}'
       system_update: 'Cập nhật hệ thống OpenProject:'
@@ -2845,6 +2929,16 @@ vi:
       work_package_duplicate_closed: 'Gói công việc trùng lặp được cập nhật:'
       work_package_parent_deleted: Parent removed
     changes_retracted: Những thay đổi đã bị rút lại
+    non_visible:
+      budget: a non-visible budget
+      category: a non-visible category
+      default: a non-visible record
+      issue_priority: a non-visible priority
+      project: a non-visible project
+      sprint: a non-visible sprint
+      time_entry_activity: a non-visible activity
+      version: a non-visible version
+      work_package: a non-visible work package
   label_accessibility: Trợ năng
   label_account: tài khoản
   label_actions: hành động
@@ -3201,6 +3295,7 @@ vi:
   label_me: tôi
   label_member_all_admin: "(Tất cả các vai trò do tư cách quản trị viên)"
   label_member_new: Thành viên mới
+  label_member_of_project: Member of project
   label_member_plural: thành viên
   label_member_role: Vai trò dự án
   label_membership_added: Đã thêm thành viên
@@ -3352,7 +3447,7 @@ vi:
   label_project_hide_details: Ẩn chi tiết Dự án
   label_project_hierarchy: Phân cấp dự án
   label_project_identifier: Project identifier
-  label_project_initiation_export_pdf: Xuất PDF cho %{project_creation_name}
+  label_project_initiation_export_pdf: Export %{project_creation_name} as PDF
   label_project_latest: Dự án mới nhất
   label_project_life_cycle: Vòng đời dự án
   label_project_list_plural: Danh sách dự án
@@ -3464,7 +3559,7 @@ vi:
   label_subitems: mục phụ
   label_subject_or_id: Chủ đề hoặc Mã
   label_subproject: dự án con
-  label_subproject_new: Thêm dự án con
+  label_subproject_add: Add subproject
   label_subproject_plural: Dự án con
   label_subtask_plural: Tác vụ con
   label_summary: Tóm tắt
@@ -3528,6 +3623,7 @@ vi:
   label_version_sharing_none: Không được chia sẻ
   label_version_sharing_system: Với tất cả dự án
   label_version_sharing_tree: Với cây dự án
+  label_versions_and_categories: Versions and categories
   label_videos: Các đoạn phim
   label_view_all_revisions: Xem tất cả các phiên bản
   label_view_diff: Xem sự khác biệt
@@ -3707,7 +3803,6 @@ vi:
         invalid_type: Không tìm thấy loại nào có tên '%{type}' trong dự án '%{project}'.
         no_project_context: Gọi macro create_work_package_link từ ngữ cảnh bên ngoài dự án.
       link_name: Work package mới
-      link_name_type: Mới %{type_name}
     errors:
       missing_or_invalid_parameter: Các tham số macro thiếu hoặc không hợp lệ.
     include_wiki_page:
@@ -4148,7 +4243,6 @@ vi:
   notice_auth_stage_error: Xác thực giai đoạn '%{stage}' không thành công.
   notice_auth_stage_verification_error: Không thể xác nhận giai đoạn '%{stage}'.
   notice_auth_stage_wrong_stage: Dự kiến sẽ kết thúc giai đoạn xác thực '%{expected}', nhưng '%{actual}' quay lại.
-  notice_automatic_set_of_standard_type: Đặt loại tiêu chuẩn tự động.
   notice_bad_request: Yêu cầu xấu.
   notice_can_t_change_password: Tài khoản này sử dụng nguồn xác thực bên ngoài. Không thể thay đổi mật khẩu.
   notice_custom_options_deleted: Tùy chọn '%{option_value}' và các lần xuất hiện %{num_deleted} của nó đã bị xóa.
@@ -4549,6 +4643,7 @@ vi:
 
     '
   permission_move_work_packages: Di chuyển gói công việc
+  permission_project_identifier_visibility_caution: 'Caution: users with this permission can find out whether a project identifier is already taken, even by projects they cannot see. [Learn more](project_identifier_visibility_url)'
   permission_save_bcf_queries: Lưu truy vấn BCF
   permission_save_queries: Lưu các chế độ xem
   permission_search_project: Tìm kiếm dự án
@@ -4640,7 +4735,8 @@ vi:
   project:
     archive:
       archived: Đã lưu
-      are_you_sure: Bạn có chắc bạn muốn lưu trữ các dự án '%{name}'?
+      confirmation_heading: Are you sure you want to continue?
+      confirmation_message: Archiving this project will make it and all its descendants unavailable to all users of this instance. Archived projects can be restored.
       title: Lưu trữ dự án
     count:
       one: 1 dự án
@@ -4770,6 +4866,7 @@ vi:
       header_identifier: Identifier
       header_relations: Quan hệ dự án
       header_status: trạng thái
+      identifier_visibility_warning: Project identifiers aren't private. If your project is confidential, choose a nondescript identifier.
       life_cycle:
         filter:
           label: Tìm kiếm giai đoạn dự án
@@ -4843,10 +4940,18 @@ vi:
           title: No types are active in this project
         form:
           enable_type_in_project: Kích hoạt loại "%{type}"
-        in_roadmap: In roadmap
         no_results_title_text: Không có phân loại.
         remove_from_project: Remove from project
+        switch_dialog:
+          apply: Apply
+          description: Select a different variant of this type to use in this project.
+          success: The project now uses %{type}.
+          target_label: Variant
+          title: "%{type}: Switch variant"
+          warning: If you switch variants, you might lose information associated with custom fields that might not be present in the new one.
+        switch_type: Switch variant
         type_not_found: The selected type could not be found.
+        variant_prefix: 'Variant:'
       versions:
         no_results_content_text: Tạo ra một phiên bản mới
         no_results_title_text: Hiện đang có phiên bản dự án.
@@ -5119,6 +5224,7 @@ vi:
   setting_default_language: Ngôn ngữ mặc định
   setting_default_projects_modules: Các mô-đun được bật mặc định cho các dự án mới
   setting_default_projects_public: Các dự án mới được công khai theo mặc định
+  setting_default_projects_wiki: Enables wiki functionality for new projects by default
   setting_diff_max_lines_displayed: Số dòng khác biệt tối đa được hiển thị
   setting_disable_password_login: Vô hiệu hóa xác thực mật khẩu
   setting_display_subprojects_work_packages: Hiển thị các gói công việc của dự án con trên các dự án chính theo mặc định
@@ -5253,6 +5359,7 @@ vi:
   setting_work_package_done_ratio_status_caption_html: Mỗi trạng thái có một giá trị <i>% Hoàn thành</i> được liên kết với nó. Việc thay đổi trạng thái sẽ thay đổi <i>% Hoàn thành</i>.
   setting_work_package_list_default_highlighted_attributes: Thuộc tính được đánh dấu nội tuyến mặc định
   setting_work_package_list_default_highlighting_mode: Chế độ đánh dấu mặc định
+  setting_work_package_multiple_versions: Multiple target versions
   setting_work_package_properties: Thuộc tính gói công việc
   setting_work_package_startdate_is_adddate: Sử dụng ngày hiện tại làm ngày bắt đầu cho các gói công việc mới
   setting_work_packages_identifier_classic: Instance-wide numerical sequence (default)
@@ -5677,6 +5784,7 @@ vi:
   text_journal_file_link_deleted: "%{label} liên kết tới %{old} (%{storage}) đã bị xóa"
   text_journal_label_value: "%{label} %{value}"
   text_journal_of: "%{label} %{value}"
+  text_journal_permission_denied: You do not have permission to see this journal activity.
   text_journal_set_to: "%{label} được đặt thành %{value}"
   text_journal_set_with_diff: "%{label} đặt (%{link})"
   text_latest_note: 'Bình luận mới nhất là: %{note}'
@@ -5787,10 +5895,11 @@ vi:
   total_progress: Tổng tiến độ
   types:
     creation_wizard:
+      add_variant: Add variant to %{name}
       create_type: Create type
       create_variant: Create variant
       fields:
-        inherited_from_parent_html: Inherited from parent type <b>%{parent}</b>.
+        variant_name_caption: Names this configuration of %{type}. Work packages keep using %{type} itself.
       finish: Finish
       placeholder_description: This step will be available soon.
       progress_label: Step %{number} of %{total}
@@ -5802,7 +5911,7 @@ vi:
         project_attributes: Project attributes
         projects: Projects
         workflows: Workflows
-      success: Variant created successfully.
+      success: Created successfully.
     edit:
       breadcrumb_variant: 'Variant: %{name}'
       defaults:
@@ -5827,6 +5936,7 @@ vi:
             work_package: Work package
           label_with_context: "%{attribute_context}: %{attribute_label}"
       details:
+        inherited_from_type_html: Inherited from type <b>%{type}</b>.
         tab: Details
         type_color_text: The selected color distinguishes different types in Gantt charts or work packages tables. It is therefore recommended to use a strong color.
       export_configuration:
@@ -5850,6 +5960,7 @@ vi:
           actions:
             label_disable_all: Vô hiệu hóa tất cả
             label_enable_all: Kích hoạt tất cả
+            label_toggle_template: Toggle %{template}
           label: Mẫu xuất PDF
         tab: Tạo PDF
         templates:
@@ -5868,6 +5979,10 @@ vi:
         drag_to_reorder: Drag to reorder
         edit_query: Edit query
         empty_group_hint: Drag attributes here
+        exclusions:
+          attribute_label: Inherit %{attribute}
+          excluded: Hidden
+          section_label: Inherit section %{section}
         filter_inactive: Filter attributes
         group_actions: Section actions
         group_name_label: Section name
@@ -5892,7 +6007,17 @@ vi:
         actions:
           label_disable_all: Disable all
           label_enable_all: Enable all
+        blankslate:
+          independent:
+            description: Once you [create project attributes](administration_url), they will be visible here and can be added to a type.
+            title: No project attributes available
+          linked:
+            description: This type does not have any project attributes associated with it.
+            title: No project attributes configured
         description: Select the project attributes that you want to enable for this work package type. Enabled project attributes are displayed in a separate tab in work packages of this type. Users with the necessary permissions can view and edit these attributes there.
+        disabled: Disabled
+        exclusions:
+          attribute_label: Inherit %{attribute}
         filter: Search by section or name
         tab: Project attributes
       projects:
@@ -5914,6 +6039,9 @@ vi:
             title: Copy configuration
           invalid_source: The configuration cannot be copied from the selected type. Please select a different source type.
           success: The configuration was copied.
+        exclusions:
+          not_linked: This type owns its configuration for this section, so there is nothing to exclude. Edit the configuration directly instead.
+          unknown_aspect: Unknown configuration section "%{aspect}".
         independent:
           confirm_dialog:
             check_box: I understand that this will override the current settings
@@ -6469,13 +6597,13 @@ vi:
           label: Source role
         target_role_ids:
           label: Target roles
-        target_type_ids:
+        target_variant_ids:
           label: Target types
       from_roles:
         create:
           notice:
             other: Successfully copied workflow to %{count} roles.
-      from_types:
+      from_variants:
         create:
           notice:
             other: Successfully copied workflow to %{count} types.
