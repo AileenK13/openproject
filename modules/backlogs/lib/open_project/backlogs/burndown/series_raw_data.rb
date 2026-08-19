@@ -56,7 +56,7 @@ module OpenProject::Backlogs::Burndown
 
         day_data.each do |key, value|
           next if key == "date"
-          
+
           self[key][date] = value.to_f
         end
       end
