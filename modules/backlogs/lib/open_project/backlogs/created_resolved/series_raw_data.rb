@@ -53,7 +53,7 @@ module OpenProject::Backlogs::CreatedResolved
 
     def collect_data
       initialize_self_for_collection
-      #Rails.logger.info ">>> DEBUG data_for_dates 2 -> #{data_for_dates.inspect}"
+      #Rails.logger.info ">>> DEBUG data_for_dates -> #{data_for_dates.inspect}"
       data_for_dates.each do |day_data| 
         #day_data burndown = {"date" => Fri, 31 Jul 2026, "story_points" => 0.5e1}
         date = day_data["date"]
@@ -107,11 +107,9 @@ module OpenProject::Backlogs::CreatedResolved
       query_string = <<~SQL.squish
         SELECT
           days.date,
-          /*COUNT() as work_packages*/
-          /*COALESCE(SUM(work_package_journals.story_points), 0.0) AS wp_created,*/
           COUNT(*) FILTER (WHERE date_trunc('day', work_packages.created_at) = days.date) AS wp_created,
           COUNT(*) FILTER (
-              WHERE work_package_journals.status_id IN (12,14) AND 
+              WHERE work_package_journals.status_id IN (#{project.done_statuses.pluck(:id).join(', ')}) AND
               (days.DATE::TIMESTAMP + interval '23:59:59') AT TIME ZONE 'Etc/UTC' = (date_trunc('day', journals.created_at::TIMESTAMP)+ interval '23:59:59') AT TIME ZONE 'Etc/UTC'
             ) AS wp_resolved
         FROM
@@ -122,7 +120,6 @@ module OpenProject::Backlogs::CreatedResolved
           AND journals.data_type = '#{Journal::WorkPackageJournal.name}'
           AND #{container_query}
           AND #{project_id_query}
-          #{and_status_query}
         LEFT JOIN 
           work_packages 
         ON journals.journable_id = work_packages.id
@@ -133,27 +130,6 @@ module OpenProject::Backlogs::CreatedResolved
         ORDER BY days.date
       SQL
 
-=begin
-      query_string = <<~SQL.squish
-        SELECT
-          days.date,
-          COALESCE(SUM(work_package_journals.story_points), 0.0) as story_points
-        FROM
-          work_package_journals
-        LEFT JOIN
-          journals
-        ON work_package_journals.id = journals.data_id
-          AND journals.data_type = '#{Journal::WorkPackageJournal.name}'
-          AND #{container_query}
-          AND #{project_id_query}
-          #{and_status_query}
-        JOIN
-          (#{day_query.to_sql}) days
-        ON (days.date::timestamp + interval '23:59:59') AT TIME ZONE '#{User.current.time_zone.tzinfo.name}' <@ journals.validity_period
-        GROUP BY days.date
-        ORDER BY days.date
-      SQL
-=end
       Rails.logger.info ">>> DEBUG query_string: #{query_string}"
       Journal::WorkPackageJournal.connection.select_all query_string
     end
@@ -174,23 +150,6 @@ module OpenProject::Backlogs::CreatedResolved
       end
     end
 
-=begin
-    def and_status_query
-      non_closed_statuses = Status.where(is_closed: false).pluck(:id)
-
-      done_statuses_for_project = project.done_statuses.pluck(:id)
-
-      open_status_ids = non_closed_statuses - done_statuses_for_project
-
-      if open_status_ids.empty?
-        # No work packages count as remaining, so force the LEFT JOIN to
-        # produce no matches, making the SUM evaluate to 0 (via COALESCE).
-        "AND 1=0"
-      else
-        "AND (#{Journal::WorkPackageJournal.table_name}.status_id IN (#{open_status_ids.join(',')}))"
-      end
-    end
-=end
 
     def container_query
       "(#{Journal::WorkPackageJournal.table_name}.sprint_id = #{sprint.id})"

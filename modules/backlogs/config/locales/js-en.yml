@@ -32,6 +32,8 @@ en:
     burndown:
       day: "Day"
       points: "Points"
+    created_resolved:
+      work_packages: "Work packages"
     work_packages:
       properties:
         storyPoints: "Story Points"

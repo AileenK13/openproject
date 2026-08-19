@@ -74,13 +74,12 @@ export class CreatedResolvedComponent {
       x: {
         title: {
           display: true,
-          text: this.i18n.t('js.burndown.day')
         }
       },
       y: {
         title: {
           display: true,
-          text: this.i18n.t('js.burndown.points')
+          text: this.i18n.t('js.created_resolved.work_packages')
         },
         suggestedMin: 0,
         max: this.maxValue() + BURNDOWN_Y_SCALE_MIN

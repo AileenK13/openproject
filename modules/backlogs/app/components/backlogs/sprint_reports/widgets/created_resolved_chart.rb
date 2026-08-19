@@ -32,6 +32,8 @@ module Backlogs
   module SprintReports
     module Widgets
       class CreatedResolvedChart < Grids::WidgetComponent
+        include Redmine::I18n
+
         param :sprint
         param :project
 
@@ -72,7 +74,8 @@ module Backlogs
           createdResolved.days.enum_for(:each_with_index).map do |d, i|
             if (i % entries_displayed) == 0
               #["#{::I18n.t('date.abbr_day_names')[d.wday % 7]} #{d.strftime('%d/%m')}"]
-              ["#{d.strftime('%d.%m')}"]
+              #["#{d.strftime('%d.%m')}"]
+              ["#{format_date(d, format: I18n.t("date.formats.short"))}"]
             end
           end
         end
