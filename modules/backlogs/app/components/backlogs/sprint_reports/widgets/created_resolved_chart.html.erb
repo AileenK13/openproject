@@ -29,7 +29,7 @@ See COPYRIGHT and LICENSE files for more details.
 
 <%=
   widget_wrapper do |container|
-    if createdResolved.present?
+    if created_resolved.present?
       container.with_body do
         helpers.angular_component_tag "opce-created-resolved-chart", "chart-data": chart_data, class: "d-block"
       end
